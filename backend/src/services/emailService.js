@@ -2,7 +2,8 @@
 
 const { resend } = require('../config/resend');
 
-const FROM_ADDRESS = 'AtomQuest <noreply@atomquest.dev>';
+// Use Resend's testing domain so free tier emails actually go through
+const FROM_ADDRESS = 'AtomQuest <onboarding@resend.dev>';
 
 /**
  * Shared email wrapper with error handling.
