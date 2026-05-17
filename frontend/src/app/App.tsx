@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import LoginPage from './components/LoginPage';
+import LandingPage from './components/LandingPage';
 import EmployeeMyGoals from './components/EmployeeMyGoals';
 import EmployeeCheckins from './components/EmployeeCheckins';
 import ManagerDashboard from './components/ManagerDashboard';
@@ -23,6 +24,7 @@ export default function App() {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [currentPage, setCurrentPage] = useState<Page>('my-goals');
   const [isInitializing, setIsInitializing] = useState(true);
+  const [showLanding, setShowLanding] = useState(true);
 
   // Initialize auth + cycle stores on first mount
   useEffect(() => {
@@ -89,6 +91,9 @@ export default function App() {
   }
 
   if (!userRole) {
+    if (showLanding) {
+      return <LandingPage onLoginClick={() => setShowLanding(false)} />;
+    }
     return <LoginPage onLogin={handleLogin} />;
   }
 
