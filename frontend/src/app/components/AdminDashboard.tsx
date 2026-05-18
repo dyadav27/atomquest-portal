@@ -23,7 +23,23 @@ export default function AdminDashboard({ onNavigate, onLogout, userRole }: Admin
         
         // Fetch real users
         const { data: userData } = await api.get('/api/users');
-        setEmployees(userData.users || []);
+        
+        // Fetch heatmap data
+        const { data: heatmapRes } = await api.get('/api/analytics/heatmap');
+        const heatmapData = heatmapRes.heatmap || [];
+        const heatmapMap = new Map(heatmapData.map((h: any) => [h.employee_id, h]));
+        
+        const mergedEmployees = (userData.users || []).map((u: any) => {
+          const h = heatmapMap.get(u.id);
+          return {
+            ...u,
+            q1: h?.q1 || 0,
+            q2: h?.q2 || 0,
+            q3: h?.q3 || 0,
+            q4: h?.q4 || 0,
+          };
+        });
+        setEmployees(mergedEmployees);
 
         // Fetch real escalations
         const { data: escData } = await api.get('/api/escalations');
@@ -127,14 +143,13 @@ export default function AdminDashboard({ onNavigate, onLogout, userRole }: Admin
                 </thead>
                 <tbody>
                   {employees.map((emp) => {
-                    // Quick mock for Rahul who actually has check-ins in the DB, else 0 for the newly created users
-                    const q1Score = emp.name.includes('Rahul') ? 85 : 0;
+                    const q1Score = emp.q1 || 0;
                     return (
                       <tr key={emp.id}>
                         <td className="text-sm text-gray-900 py-2 pr-8">{emp.name} <span className="text-xs text-gray-400">({emp.role})</span></td>
                         <td className="py-2 px-3">
                           <div className={`w-full h-10 rounded ${getCellColor(q1Score)} flex items-center justify-center text-white text-sm font-medium`}>
-                            {q1Score > 0 ? `${q1Score}%` : ''}
+                            {q1Score > 0 ? `${Math.round(q1Score)}%` : ''}
                           </div>
                         </td>
                         <td className="py-2 px-3">
